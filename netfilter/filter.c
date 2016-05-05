@@ -17,7 +17,7 @@ MODULE_LICENSE("Dual BSD/GPL");
 #define PREFIX "[LSP]"
 #define FILTER_DEF_RE NF_ACCEPT
 
-LIST_HEAD(filterListChain);     /*      filter rule list head  */
+LIST_HEAD(filter_chain);     /*      filter rule list head  */
 
 unsigned int LSP_filterIn(struct sk_buff *skb, const struct net_device *in, const struct net_device *out)
 {
@@ -36,75 +36,101 @@ unsigned int LSP_filterIn(struct sk_buff *skb, const struct net_device *in, cons
 
     iph=ip_hdr(skb);
 
-    saddr = iph->saddr;
-    daddr = iph->daddr;
+    saddr = ntohl(iph->saddr);
+    daddr = ntohl(iph->daddr);
     protocol = iph->protocol;
 
-    switch(protocol)
+    l4hdr = (void *)tcp_hdr(skb);
+    sport = ntohs(((struct tcphdr *)l4hdr)->source);
+    dport = ntohs(((struct tcphdr *)l4hdr)->dest);
+    
+    
+    
+    list_for_each_entry(rule,&filter_chain,list)
     {
-    case IPPROTO_TCP:
-        printk(KERN_ALERT PREFIX"TCP\n");
-        l4hdr = (void *)tcp_hdr(skb);
-        sport = ((struct tcphdr *)l4hdr)->source;
-        dport = ((struct tcphdr *)l4hdr)->dest;
-        break;
-    case IPPROTO_UDP:
-        printk(KERN_ALERT PREFIX"UDP\n");
-        l4hdr = (void *)udp_hdr(skb);
-        sport = ((struct udphdr *)l4hdr)->source;
-        dport = ((struct udphdr *)l4hdr)->dest;
-        break;
-    default:
-        return FILTER_DEF_RE;
-    }
-    
-    
-    printk(KERN_ALERT PREFIX"should be execute, and executed\n");
-    
-    list_for_each_entry(rule,&filterListChain,list)
-    {
-        printk(KERN_ALERT PREFIX"shouldn't be execute, but executed\n");
-
-        i=1;
-
-        if(IS_SADDR_SING(rule->flag))
+        switch(rule->flag)
         {
-            if(saddr == rule->saddrStart)
+        case LSP_FLTPLC_S_ADDR_S:
+            if(saddr == rule->start)
                 re = rule->re;
-        }
-        if(IS_DADDR_SING(rule->flag))
-        {
-            if(daddr == rule->daddrStart)
+            break;
+    
+        case LSP_FLTPLC_S_ADDR_M:
+            if(saddr >= rule->start && saddr <= rule->end)
                 re = rule->re;
-        }
-        if(IS_SADDR_MULT(rule->flag))
-        {
-            if(saddr >= ntohl(rule->saddrStart) && saddr <= ntohl(rule->saddrEnd))
-            {
+            break;
+    
+        case LSP_FLTPLC_D_ADDR_S:
+            if(daddr == rule->start)
                 re = rule->re;
-            }
-        }
-        if(IS_DADDR_MULT(rule->flag))
-        {
-            if(daddr >= ntohl(rule->daddrStart) && daddr <= ntohl(rule->daddrEnd))
-            re = rule->re;
-        }
-        if(IS_SPORT(rule->flag))
-        {
-            if(sport == rule->sport)
-            re = rule->re;
-        }
-        if(IS_DPORT(rule->flag))
-        {
+            break;
+    
+        case LSP_FLTPLC_D_ADDR_M:
+            if(daddr >= rule->start && daddr <= rule->end)
+                re = rule->re;
+            break;
+    
+        case LSP_FLTPLC_DPORT:
             if(dport == rule->dport)
-            re = rule->re;
-        }
-
-    }
+                re = rule->re;
+            break;
     
-    if(i == 1)
-    {
-        printk(KERN_ALERT PREFIX"shouldn't be execute, but executed\n");
+        case LSP_FLTPLC_PROTO:
+            if(protocol == rule->protocol)
+                re = rule->re;
+            break;
+    
+        case LSP_FLTPLC_S_ADDR_AND_DPORT_S:
+            if(saddr == rule->start)
+                if(dport == rule->dport)
+                    re = rule->re;
+            break;
+    
+        case LSP_FLTPLC_S_ADDR_AND_DPORT_M:
+            if(saddr >= rule->start && saddr <= rule->end)
+                if(dport == rule->dport)
+                    re = rule->re;
+            break;
+    
+        case LSP_FLTPLC_S_ADDR_AND_PROTO_S:
+            if(saddr == rule->start)
+                if(protocol == rule->protocol)
+                    re = rule->re;
+            break;
+    
+        case LSP_FLTPLC_S_ADDR_AND_PROTO_M:
+            if(saddr >= rule->start && saddr <= rule->end)
+                if(protocol == rule->protocol)
+                    re = rule->re;
+            break;
+    
+        case LSP_FLTPLC_D_ADDR_AND_DPORT_S:
+            if(daddr == rule->start)
+                if(dport == rule->dport)
+                    re = rule->re;
+            break;
+    
+        case LSP_FLTPLC_D_ADDR_AND_DPORT_M:
+            if(daddr >= rule->start && daddr <= rule->end)
+                if(dport == rule->dport)
+                    re = rule->re;
+            break;
+    
+        case LSP_FLTPLC_D_ADDR_AND_PROTO_S:
+            if(daddr == rule->start)
+                if(protocol == rule->protocol)
+                    re = rule->re;
+            break;
+    
+        case LSP_FLTPLC_D_ADDR_AND_PROTO_M:
+            if(daddr >= rule->start && daddr <= rule->end)
+                if(protocol == rule->protocol)
+                    re = rule->re;
+            break;
+    
+        default:
+            break;
+        }
     }
 
     return re;
