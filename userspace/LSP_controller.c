@@ -173,7 +173,7 @@ int main(int argc, char *argv[])
     }
 
     
-    if( (ret = nl_send(sk, fm_id, NLM_F_REQUEST, 0, getpid(), LSP_NL_ADD, 1, buff, BUFF_LEN, &dest_addr, sizeof(dest_addr))) < 0)
+    if( (ret = nl_send(sk, fm_id, NLM_F_REQUEST, 0, getpid(), LSP_NL_ADD, 1, buff, BUFF_LEN, (struct sockaddr *)&dest_addr, sizeof(dest_addr))) < 0)
     {
         printf("nl_send error\n");
         return -1;

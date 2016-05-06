@@ -8,6 +8,17 @@
 #include "../netfilter/LSP_rule.h"
 
 
+extern struct rule_chain filter_rule_chain;
+
+void add_rule_chain(struct LSP_filter_rule * rule, struct rule_chain *chain)
+{
+    down_write(&chain->rw_sem);
+
+    list_add_tail(&rule->list, &chain->head);
+
+    up_write(&chain->rw_sem);
+}
+
 int add_rule(struct sk_buff *skb, struct genl_info *info)
 {
     struct nlmsghdr * nlh;
@@ -194,7 +205,7 @@ static int LSP_register_netlink(void)
     return re;
 }
 
-static int test_init(void)
+int LSP_netlink_init(void)
 {
     int re = 0;
     re = LSP_register_netlink();
@@ -205,11 +216,11 @@ static int test_init(void)
     return re;
 }
 
-static void test_exit(void)
+void LSP_netlink_exit(void)
 {
     genl_unregister_family(&LSP_genl_family);
 }
 
-module_init(test_init)
-module_exit(test_exit)
+//module_init(netlink_init)
+//module_exit(netlink_exit)
 

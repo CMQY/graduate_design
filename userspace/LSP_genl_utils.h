@@ -1,9 +1,10 @@
 #ifndef _LSP_GENL_UTILS_
 #define _LSP_GENL_UTILS_
+#include <string.h>
 
 int set_attr(struct nlattr *nla, size_t buf_len, __u16 type, __u16 len, void *value, size_t size)
 {
-    if((NLA_DATA(0) + size) > buf_len)
+    if((unsigned long)(NLA_DATA(0) + size) > buf_len)
     {
         return -1;
     }
@@ -33,7 +34,7 @@ int mk_rule(char *buff, int buff_len, __u8 flag, __be32 *start, __be32 *end, __b
     bcopy(&flag, NLA_DATA(nla), sizeof(__u8));
 */ 
 
-    if(NULL != re)
+    if(-1 != re)
     {
         buff_need = NLA_LEN(sizeof(unsigned int));
         if(buff_need > buff_len)
@@ -145,7 +146,7 @@ int nl_send(int sk, __u16 nlmsg_type, __u16 nlmsg_flags, __u32 nlmsg_seq, __u32 
     struct genlmsghdr *gnlh;
     struct nlattr *gnla;
     int ret;
-    int send_len = len + GENLMSG_DATA(0);
+    int send_len = (unsigned int)(len + (unsigned long)GENLMSG_DATA(0));
 
     send_buff = malloc(send_len);
     if(NULL == send_buff)

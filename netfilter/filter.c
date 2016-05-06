@@ -17,6 +17,12 @@ MODULE_LICENSE("Dual BSD/GPL");
 #define PREFIX "[LSP]"
 #define FILTER_DEF_RE NF_ACCEPT
 
+extern int LSP_netlink_init(void);
+extern void LSP_netlink_exit(void);
+
+struct rule_chain filter_rule_chain;
+
+    
 
 unsigned int LSP_filterIn(struct sk_buff *skb, const struct net_device *in, const struct net_device *out)
 {
@@ -46,6 +52,8 @@ unsigned int LSP_filterIn(struct sk_buff *skb, const struct net_device *in, cons
     down_read(&(filter_rule_chain.rw_sem));
     list_for_each_entry(rule,&(filter_rule_chain.head),list)
     {
+        printk(KERN_ALERT "[LSP] here is chain\n");
+        
         switch(rule->flag)
         {
         case LSP_FLTPLC_S_ADDR_S:
@@ -132,7 +140,7 @@ unsigned int LSP_filterIn(struct sk_buff *skb, const struct net_device *in, cons
     }
     up_read(&(filter_rule_chain.rw_sem));
 
-    return re;
+    return FILTER_DEF_RE;
 }
 
 static unsigned int nf_pre_routing_fn(unsigned int hooknum, struct sk_buff *skb, const struct net_device *in, const struct net_device *out, int (*okfn)(struct sk_buff *))
@@ -172,7 +180,7 @@ static unsigned int nf_forward_fn(unsigned int hooknum, struct sk_buff *skb, con
 
 
 
-static struct nf_hook_ops hops[5] = {
+static struct nf_hook_ops hops[] = {
 {
 	.hook=nf_pre_routing_fn,
 	.owner=THIS_MODULE,
@@ -215,19 +223,22 @@ static struct nf_hook_ops hops[5] = {
 };
 
 
-static int test_init(void)
+static int LSP_netfilter_init(void)
 {
     INIT_LIST_HEAD(&(filter_rule_chain.head));
     init_rwsem(&(filter_rule_chain.rw_sem));
 
 	nf_register_hooks(hops,5);
+    printk(KERN_ALERT "[LSP] netlink start here \n");
+    LSP_netlink_init();
 	return 0;
 }
 
-static void test_exit(void)
+static void LSP_netfilter_exit(void)
 {
 	nf_unregister_hooks(hops,5);
+    LSP_netlink_exit();
 }
 
-module_init(test_init)
-module_exit(test_exit)
+module_init(LSP_netfilter_init)
+module_exit(LSP_netfilter_exit)

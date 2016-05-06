@@ -72,15 +72,5 @@ struct rule_chain {
     struct rw_semaphore rw_sem;
 };
 
-struct rule_chain filter_rule_chain;
-
-void add_rule_chain(struct LSP_filter_rule * rule, struct rule_chain *chain)
-{
-    down_write(&chain->rw_sem);
-    
-    list_add_tail(&rule->list, &chain->head);
-    
-    up_write(&chain->rw_sem);
-}
 
 #endif

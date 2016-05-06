@@ -4,15 +4,13 @@ KERNELDIR=	/lib/modules/$(shell uname -r)/source
 endif
 
 
-TARGET	:=	syskernelchk
+TARGET	:=	firewall
 PWD 	:= $(shell pwd)
 
 
 ifneq ($(KERNELRELEASE),) 
-	obj-m	:= filter.o
-#	obj-m	:= test.o
-#	obj-m	:= list_for_each.o
-#	$(TARGET)-objs:= 
+	obj-m	:= $(TARGET).o
+	$(TARGET)-objs:= netfilter/filter.o netlink/LSP_netlink.o
 endif 
 
 default: 
@@ -23,5 +21,5 @@ default:
 
 
 clean: 
-	@rm -rf *.ko *.mod.c *.mod.o *.o  .syskernel* .tmp* modules.* Module.* *.ko.unsigned .*.cmd
+	@rm -rf  *.ko *.mod.c *.mod.o *.o  .syskernel* .tmp* modules.* Module.* *.ko.unsigned .*.cmd ./*/.*.cmd ./*/*.o
 	
