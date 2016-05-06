@@ -20,12 +20,41 @@
  * flag re start end dport protocol
  ************************************************************************************/
 
-static int del_rule()
+static int del_rule(char *buff, unsigned int num, int sk, int fm_id, struct sockaddr *dest_addr)
 {
+    int re = 0;
+    if( (re = mk_rule(buff, BUFF_LEN, LSP_RULE_DEL, NULL, NULL, NULL, NULL, NULL, re)) < 0)
+    {
+        printf("mk_rule error\n");
+        return -1;
+    }
+    
+    if( (re = nl_send(sk, fm_id, NLM_F_REQUEST, 0, getpid(), LSP_NL_DEL, 1, buff, BUFF_LEN, dest_addr, sizeof(struct sockaddr))) < 0 )
+    {
+        printf("nl_send\n");
+        return -1;
+    }
+
+    return 0;
 }
 
-static int del_all_rule()
+static int del_all_rule(char *buff, int sk, int fm_id, struct sockaddr *dest_addr)
 {
+    int re = 0;
+    if( (re = mk_rule(buff, BUFF_LEN, LSP_RULE_DEL_ALL, NULL, NULL, NULL, NULL, NULL, -1)) < 0)
+    {
+        printf("mk_rule error\n");
+        return -1;
+    }
+    
+    if( (re = nl_send(sk, fm_id, NLM_F_REQUEST, 0, getpid(), LSP_NL_DEL_ALL, 1, buff, BUFF_LEN, dest_addr, sizeof(struct sockaddr))) < 0 )
+    {
+        printf("nl_send\n");
+        return -1;
+    }
+
+    return 0;
+
 }
 
 
@@ -55,6 +84,8 @@ int main(int argc, char *argv[])
     
     sk = socket(AF_NETLINK, SOCK_RAW, NETLINK_GENERIC);
     
+    bzero(buff, BUFF_LEN);
+
     bzero(&dest_addr, sizeof(struct sockaddr_nl));
     dest_addr.nl_family = AF_NETLINK;
     dest_addr.nl_pid = 0;
@@ -66,16 +97,19 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    re = atoi(argv[2]);
+    if(argc > 2)
+    {
+        re = atoi(argv[2]);
+    }
     flag = atoi(argv[1]);
 
     switch(flag)
     {
         case LSP_RULE_DEL:          /* del rule from the chain, i didn't concern about it before, so i can only implement here  */
-            return del_rule(re, sk, fm_id, (struct sockaddr *)&dest_addr);
+            return del_rule(buff, re, sk, fm_id, (struct sockaddr *)&dest_addr);
 
-        case LSP_RULE_DEL_ADD:
-            return del_rule_all(sk, fm_id, (struct sockaddr *)&dest_addr);
+        case LSP_RULE_DEL_ALL:
+            return del_all_rule(buff, sk, fm_id, (struct sockaddr *)&dest_addr);
 
 
         case LSP_FLTPLC_S_ADDR_S:
@@ -182,7 +216,6 @@ int main(int argc, char *argv[])
             break;
     }
 
-    bzero(buff, BUFF_LEN);
     if( (ret = mk_rule(buff, BUFF_LEN, flag, start_p, end_p, sport_p, dport_p, protocol_p, re)) < 0)
     {
         printf("make rule error \n");

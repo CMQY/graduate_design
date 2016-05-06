@@ -18,8 +18,41 @@ void add_rule_chain(struct LSP_filter_rule * rule, struct rule_chain *chain)
 
     up_write(&chain->rw_sem);
 }
+void del_rule_chain(int num, struct rule_chain *chain)
+{
+    int i = 0;
+    struct LSP_filter_rule *rule = NULL;
 
-int add_rule(struct sk_buff *skb, struct genl_info *info)
+    down_write(&chain->rw_sem);
+    
+    list_for_each_entry(rule, &chain->head, list)
+    {
+        i++;
+        if(i == num)
+        {
+            list_del(rule->list);
+            kfree(rule);
+        }
+    }
+
+    up_write(&chain->rw_sem);
+}
+
+void del_rule_chain_all(struct rule_chain *chain)
+{
+    struct LSP_filter_rule *rule = NULL;
+    
+    down_write(&chain->rw_sem);
+
+    list_for_each_entry(rule, &chain->head, list)
+    {
+        list_del(rule->list);
+        kfree(rule);
+    }
+
+    up_write(&chain->rw_sem);
+}
+static int add_rule(struct sk_buff *skb, struct genl_info *info)
 {
     struct nlmsghdr * nlh;
     struct nlattr * nla;
@@ -157,15 +190,27 @@ int add_rule(struct sk_buff *skb, struct genl_info *info)
     
     add_rule_chain(rule, &filter_rule_chain);
 
-    return 1;
+    return 0;
 
 }
-int del_rule(struct sk_buff *skb, struct genl_info *info)
+static int del_rule(struct sk_buff *skb, struct genl_info *info)
 {
+    struct nlmsgdhr * nlh;
+    struct nlattr * nla;
+    int flag;
+    unsigned int num;
+
+    nlh = (struct nlmsghdr *)skb->data;
     
+    flag = *(__u8 *)NLA_DATA(nlh);
+    nla = NLA_NEXT(nla);
+    num = *(unsigned int *)NLA_DATA(nla);
+
+    del_rule_chain(num, &filter_rule_chain);
+
     return 0;
 }
-int del_all_rule(struct sk_buff *skb, struct genl_info *info)
+static int del_all_rule(struct sk_buff *skb, struct genl_info *info)
 {
    return 0;
 }
