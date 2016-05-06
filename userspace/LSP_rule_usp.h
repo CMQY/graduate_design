@@ -49,6 +49,14 @@ enum {
 #define LSP_FLTPLC_MAX (__LSP_FLTPLC_MAX - 1)
 
 
+/*************************************
+ * user space controller commond 
+ ************************************/
+
+#define     LSP_RULE_DEL        (LSP_FLTPLC_MAX + 16)
+#define     LSP_RULE_DEL_ALL    (LSP_FLTPLC_MAX + 17)
+
+
 struct list_head {
         struct list_head *next, *prev;
 };

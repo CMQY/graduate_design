@@ -19,6 +19,16 @@
  * arguments sequece
  * flag re start end dport protocol
  ************************************************************************************/
+
+static int del_rule()
+{
+}
+
+static int del_all_rule()
+{
+}
+
+
 int main(int argc, char *argv[])
 {
     char buff[BUFF_LEN];
@@ -61,6 +71,13 @@ int main(int argc, char *argv[])
 
     switch(flag)
     {
+        case LSP_RULE_DEL:          /* del rule from the chain, i didn't concern about it before, so i can only implement here  */
+            return del_rule(re, sk, fm_id, (struct sockaddr *)&dest_addr);
+
+        case LSP_RULE_DEL_ADD:
+            return del_rule_all(sk, fm_id, (struct sockaddr *)&dest_addr);
+
+
         case LSP_FLTPLC_S_ADDR_S:
             start = ntohl(inet_addr(argv[3]));
             start_p = &start;

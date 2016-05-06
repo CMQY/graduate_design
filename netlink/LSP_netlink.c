@@ -162,6 +162,7 @@ int add_rule(struct sk_buff *skb, struct genl_info *info)
 }
 int del_rule(struct sk_buff *skb, struct genl_info *info)
 {
+    
     return 0;
 }
 int del_all_rule(struct sk_buff *skb, struct genl_info *info)
