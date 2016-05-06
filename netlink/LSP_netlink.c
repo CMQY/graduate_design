@@ -5,40 +5,150 @@
 #include <linux/netlink.h>
 #include <net/netlink.h>
 #include "LSP_netlink.h"
+#include "../netfilter/LSP_rule.h"
 
 
 int add_rule(struct sk_buff *skb, struct genl_info *info)
 {
-    int remaining;
-    printk(KERN_ALERT "[LSP] recv LSP_NL_ADD cmd, seq:%d pid:%d, nlmsg_len:%d, nlmsg_pid:%d, cmd:%d\n",info->snd_seq,
-                        info->snd_portid, info->nlhdr->nlmsg_len, info->nlhdr->nlmsg_pid, info->genlhdr->cmd);
-
-    struct nlattr *nla1, *nla2;
-    if(NULL == (nla1 = info->attrs[0]))
-        printk(KERN_ALERT "[LSP] first is NULL\n");
-    if(NULL == (nla2 = info->attrs[1]))
-        printk(KERN_ALERT "[LSP] second is NULL\n");
-
-    struct nlmsghdr *nlh;
-    struct genlmsghdr *gnlh;
-    struct nlattr *gnla;
+    struct nlmsghdr * nlh;
+    struct nlattr * nla;
+    struct LSP_filter_rule * rule;
+    __be32 start = 0;
+    __be32 end = 0;
+    __be16 sport = 0;
+    __be16 dport = 0;
+    __u8 protocol= 0;
+    unsigned int re;
+    int flag;
     
-    nlh = (struct nlmsghdr *)skb->data;
-    gnlh = (struct genlmsghdr *)NLMSG_DATA(nlh);
-    gnla = (struct nlattr *)genlmsg_data(gnlh);
+    nlh = (struct nlmsghdr *)(skb->data);
+    nla = (struct nlattr *)GENLMSG_DATA(nlh);
     
-    remaining = genlmsg_len(gnlh);
+    flag = *(__u8 *)NLA_DATA(nla);
+    nla = NLA_NEXT(nla);
+    re = *(unsigned int *)NLA_DATA(nla);
     
-
-    if(info->attrs[2] == NULL)
+    switch(flag)
     {
-        printk(KERN_ALERT "[LSP] end by NULL");
+
+        case LSP_FLTPLC_S_ADDR_S:
+            nla = NLA_NEXT(nla);
+            start = *(__be32 *)NLA_DATA(nla);
+            break;
+
+        case LSP_FLTPLC_S_ADDR_M:
+            nla = NLA_NEXT(nla);
+            start = *(__be32 *)NLA_DATA(nla);
+            nla = NLA_NEXT(nla);
+            end = *(__be32 *)NLA_DATA(nla);
+            break;
+
+        case LSP_FLTPLC_D_ADDR_S:
+            nla = NLA_NEXT(nla);
+            start = *(__be32 *)NLA_DATA(nla);
+            break;
+
+        case LSP_FLTPLC_D_ADDR_M:
+            nla = NLA_NEXT(nla);
+            start = *(__be32 *)NLA_DATA(nla);
+            nla = NLA_NEXT(nla);
+            end = *(__be32 *)NLA_DATA(nla);
+            break;
+
+        case LSP_FLTPLC_DPORT:
+            nla = NLA_NEXT(nla);
+            dport = *(__be16 *)NLA_DATA(nla);
+            break;
+
+        case LSP_FLTPLC_PROTO:
+            nla = NLA_NEXT(nla);
+            protocol = *(__u8 *)NLA_DATA(nla);
+            break;
+
+        case LSP_FLTPLC_S_ADDR_AND_DPORT_S:
+            nla = NLA_NEXT(nla);
+            start = *(__be32 *)NLA_DATA(nla);
+            nla = NLA_NEXT(nla);
+            dport = *(__u8 *)NLA_DATA(nla);
+            break;
+
+        case LSP_FLTPLC_S_ADDR_AND_DPORT_M:
+            nla = NLA_NEXT(nla);
+            start = *(__be32 *)NLA_DATA(nla);
+            nla = NLA_NEXT(nla);
+            end = *(__be32 *)NLA_DATA(nla);
+            nla = NLA_NEXT(nla);
+            dport = *(__u8 *)NLA_DATA(nla);
+            break;
+
+        case LSP_FLTPLC_S_ADDR_AND_PROTO_S:
+            nla = NLA_NEXT(nla);
+            start = *(__be32 *)NLA_DATA(nla);
+            nla = NLA_NEXT(nla);
+            protocol = *(__u8 *)NLA_DATA(nla);
+            break;
+
+        case LSP_FLTPLC_S_ADDR_AND_PROTO_M:
+            nla = NLA_NEXT(nla);
+            start = *(__be32 *)NLA_DATA(nla);
+            nla = NLA_NEXT(nla);
+            end = *(__be32 *)NLA_DATA(nla);
+            nla = NLA_NEXT(nla);
+            protocol = *(__u8 *)NLA_DATA(nla);
+            break;
+  
+        case LSP_FLTPLC_D_ADDR_AND_DPORT_S:
+            nla = NLA_NEXT(nla);
+            start = *(__be32 *)NLA_DATA(nla);
+            nla = NLA_NEXT(nla);
+            dport = *(__u8 *)NLA_DATA(nla);
+            break;
+
+        case LSP_FLTPLC_D_ADDR_AND_DPORT_M:
+            nla = NLA_NEXT(nla);
+            start = *(__be32 *)NLA_DATA(nla);
+            nla = NLA_NEXT(nla);
+            end = *(__be32 *)NLA_DATA(nla);
+            nla = NLA_NEXT(nla);
+            dport = *(__u8 *)NLA_DATA(nla);
+            break;
+
+        case LSP_FLTPLC_D_ADDR_AND_PROTO_S:
+            nla = NLA_NEXT(nla);
+            start = *(__be32 *)NLA_DATA(nla);
+            nla = NLA_NEXT(nla);
+            protocol = *(__u8 *)NLA_DATA(nla);
+            break;
+
+        case LSP_FLTPLC_D_ADDR_AND_PROTO_M:
+            nla = NLA_NEXT(nla);
+            start = *(__be32 *)NLA_DATA(nla);
+            nla = NLA_NEXT(nla);
+            end = *(__be32 *)NLA_DATA(nla);
+            nla = NLA_NEXT(nla);
+            protocol = *(__u8 *)NLA_DATA(nla);
+            break;
+
+        default:
+            printk(KERN_ALERT "[LSP] unknown flag\n");
+            return -1;
+            break;
     }
-    printk(KERN_ALERT "[LSP] first: %s second: %s \n", (char *)NLA_DATA(gnla), (char *)NLA_DATA((char *)gnla + NLA_ALIGN(gnla->nla_len)));
 
-    return 0;
+    rule = (struct LSP_filter_rule *)kmalloc(sizeof(struct LSP_filter_rule),GFP_KERNEL);
+    rule->re = re;
+    rule->flag = flag;
+    rule->start = start;
+    rule->end = end;
+    rule->sport = sport;
+    rule->dport = dport;
+    rule->protocol = protocol;
+    
+    add_rule_chain(rule, &filter_rule_chain);
+
+    return 1;
+
 }
-
 int del_rule(struct sk_buff *skb, struct genl_info *info)
 {
     return 0;

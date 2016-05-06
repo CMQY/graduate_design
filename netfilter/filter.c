@@ -17,13 +17,11 @@ MODULE_LICENSE("Dual BSD/GPL");
 #define PREFIX "[LSP]"
 #define FILTER_DEF_RE NF_ACCEPT
 
-LIST_HEAD(filter_chain);     /*      filter rule list head  */
 
 unsigned int LSP_filterIn(struct sk_buff *skb, const struct net_device *in, const struct net_device *out)
 {
-    int i = 0;
     unsigned int re = FILTER_DEF_RE;
-    struct LSP_filterRule * rule = NULL;
+    struct LSP_filter_rule * rule = NULL;
 
     struct iphdr *iph = NULL;
     void *l4hdr = NULL;
@@ -45,8 +43,8 @@ unsigned int LSP_filterIn(struct sk_buff *skb, const struct net_device *in, cons
     dport = ntohs(((struct tcphdr *)l4hdr)->dest);
     
     
-    
-    list_for_each_entry(rule,&filter_chain,list)
+    down_read(&(filter_rule_chain.rw_sem));
+    list_for_each_entry(rule,&(filter_rule_chain.head),list)
     {
         switch(rule->flag)
         {
@@ -132,6 +130,7 @@ unsigned int LSP_filterIn(struct sk_buff *skb, const struct net_device *in, cons
             break;
         }
     }
+    up_read(&(filter_rule_chain.rw_sem));
 
     return re;
 }
@@ -218,6 +217,9 @@ static struct nf_hook_ops hops[5] = {
 
 static int test_init(void)
 {
+    INIT_LIST_HEAD(&(filter_rule_chain.head));
+    init_rwsem(&(filter_rule_chain.rw_sem));
+
 	nf_register_hooks(hops,5);
 	return 0;
 }

@@ -9,7 +9,7 @@ int set_attr(struct nlattr *nla, size_t buf_len, __u16 type, __u16 len, void *va
     }
     nla->nla_len = len;
     nla->nla_type = type;
-    bcopy(value, NLA_DATA(nal), size);
+    bcopy(value, NLA_DATA(nla), size);
     return 1;
 }
 
@@ -32,6 +32,23 @@ int mk_rule(char *buff, int buff_len, __u8 flag, __be32 *start, __be32 *end, __b
     nla->nla_len = NLMSG_ALIGN(sizeof(__u8)) + NLA_HDRLEN;
     bcopy(&flag, NLA_DATA(nla), sizeof(__u8));
 */ 
+
+    if(NULL != re)
+    {
+        buff_need = NLA_LEN(sizeof(unsigned int));
+        if(buff_need > buff_len)
+        {
+            printf("buff not enough in protocol\n");
+            return -1;
+        }
+        nla = NLA_NEXT(nla);
+        if(set_attr(nla, buff_need, LSP_ATTR_32, buff_need, &re, sizeof(unsigned int)) < 0)
+        {
+            printf("set attr error error! \n");
+            return -1;
+        }
+        buff_len -= buff_need;
+    }
 
     if(NULL != start)
     {
@@ -118,24 +135,6 @@ int mk_rule(char *buff, int buff_len, __u8 flag, __be32 *start, __be32 *end, __b
         buff_len -= buff_need;
     }
 
-    if(NULL != re)
-    {
-        buff_need = NLA_LEN(sizeof(unsigned int));
-        if(buff_need > buff_len)
-        {
-            printf("buff not enough in protocol\n");
-            return -1;
-        }
-        nla = NLA_NEXT(nla);
-        if(set_attr(nla, buff_need, LSP_ATTR_32, buff_need, protocol, sizeof(unsigned int)) < 0)
-        {
-            printf("set attr error error! \n");
-            return -1;
-        }
-        buff_len -= buff_need;
-    }
-
-    return buff_len;
 }
 
 

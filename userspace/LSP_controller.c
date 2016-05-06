@@ -6,9 +6,10 @@
 #include <linux/genetlink.h>
 #include <errno.h>
 
-#include "LSP_netlink.h"
+
+#include "../netlink/LSP_netlink.h"
 #include "LSP_genl_utils.h"
-#include "../netfilter/LSP_rule.h"
+#include "LSP_rule_usp.h"
 #define BUFF_LEN 128
 
 /************************************************************************************
@@ -44,7 +45,7 @@ int main(int argc, char *argv[])
     
     sk = socket(AF_NETLINK, SOCK_RAW, NETLINK_GENERIC);
     
-    zero(&sockaddr_nl, sizeof(struct sockaddr_nl));
+    bzero(&dest_addr, sizeof(struct sockaddr_nl));
     dest_addr.nl_family = AF_NETLINK;
     dest_addr.nl_pid = 0;
     dest_addr.nl_groups = 0;

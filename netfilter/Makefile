@@ -9,7 +9,8 @@ PWD 	:= $(shell pwd)
 
 
 ifneq ($(KERNELRELEASE),) 
-	obj-m	:= test.o
+	obj-m	:= filter.o
+#	obj-m	:= test.o
 #	obj-m	:= list_for_each.o
 #	$(TARGET)-objs:= 
 endif 
