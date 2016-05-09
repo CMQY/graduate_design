@@ -135,6 +135,8 @@ int mk_rule(char *buff, int buff_len, __u8 flag, __be32 *start, __be32 *end, __b
         }
         buff_len -= buff_need;
     }
+    
+    return 1;
 
 }
 

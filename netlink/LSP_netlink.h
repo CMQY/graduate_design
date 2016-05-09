@@ -25,7 +25,7 @@ enum {
 #define GENLMSG_PAYLOAD(glh)    (NLMSG_PAYLOAD(glh, 0) - GENL_HDRLEN)
 #define NLA_DATA(na)            ((void *)((char*)(na) + NLA_HDRLEN))
 #define NLA_PAYLOAD(len)        (len - NLA_HDRLEN)
-#define NLA_NEXT(nla)           ((void *)((char *)nla + NLA_ALIGN(nla->nla_len)))
+#define NLA_NEXT(nla)           ((struct nlattr *)((char *)nla + NLA_ALIGN(nla->nla_len)))
 #define NLA_LEN(payload_len)    (NLMSG_ALIGN(payload_len) + NLA_HDRLEN)
 
 

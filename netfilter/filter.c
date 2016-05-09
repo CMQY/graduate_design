@@ -19,6 +19,8 @@ MODULE_LICENSE("Dual BSD/GPL");
 
 extern int LSP_netlink_init(void);
 extern void LSP_netlink_exit(void);
+extern void LSP_proc_init(void);
+extern void LSP_proc_exit(void);
 
 struct rule_chain filter_rule_chain;
 
@@ -38,6 +40,7 @@ unsigned int LSP_filterIn(struct sk_buff *skb, const struct net_device *in, cons
     __be16 dport;
     __u8 protocol;
 
+
     iph=ip_hdr(skb);
 
     saddr = ntohl(iph->saddr);
@@ -47,12 +50,14 @@ unsigned int LSP_filterIn(struct sk_buff *skb, const struct net_device *in, cons
     l4hdr = (void *)tcp_hdr(skb);
     sport = ntohs(((struct tcphdr *)l4hdr)->source);
     dport = ntohs(((struct tcphdr *)l4hdr)->dest);
-    
-    
-    down_read(&(filter_rule_chain.rw_sem));
+/*    
+    printk(KERN_ALERT "[LSP] the packet: start:%pI4 end:%pI4 endport:%d \n", &saddr, &daddr, dport);
+
+    down_read(&filter_rule_chain.rw_sem);
     list_for_each_entry(rule,&(filter_rule_chain.head),list)
     {
-        printk(KERN_ALERT "[LSP] here is chain\n");
+        printk(KERN_ALERT "[LSP] the rule: start:%pI4 end:%pI4 endport:%d protocol:%d re:%d \n",   \
+                &rule->start, &rule->end, rule->dport, rule->protocol, rule->re);
         
         switch(rule->flag)
         {
@@ -138,8 +143,8 @@ unsigned int LSP_filterIn(struct sk_buff *skb, const struct net_device *in, cons
             break;
         }
     }
-    up_read(&(filter_rule_chain.rw_sem));
-
+    up_read(&filter_rule_chain.rw_sem);
+*/
     return FILTER_DEF_RE;
 }
 
@@ -231,6 +236,7 @@ static int LSP_netfilter_init(void)
 	nf_register_hooks(hops,5);
     printk(KERN_ALERT "[LSP] netlink start here \n");
     LSP_netlink_init();
+    LSP_proc_init();
 	return 0;
 }
 
@@ -238,6 +244,7 @@ static void LSP_netfilter_exit(void)
 {
 	nf_unregister_hooks(hops,5);
     LSP_netlink_exit();
+    LSP_proc_exit();
 }
 
 module_init(LSP_netfilter_init)
