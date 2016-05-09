@@ -23,7 +23,8 @@
 static int del_rule(char *buff, unsigned int num, int sk, int fm_id, struct sockaddr *dest_addr)
 {
     int re = 0;
-    if( (re = mk_rule(buff, BUFF_LEN, LSP_RULE_DEL, NULL, NULL, NULL, NULL, NULL, re)) < 0)
+
+    if( (re = mk_rule(buff, BUFF_LEN, LSP_RULE_DEL, NULL, NULL, NULL, NULL, NULL, num)) < 0)
     {
         printf("mk_rule error\n");
         return -1;

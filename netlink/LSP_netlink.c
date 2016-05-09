@@ -22,18 +22,19 @@ void del_rule_chain(int num, struct rule_chain *chain)
 {
     int i = 0;
     struct LSP_filter_rule *rule = NULL;
-
+    struct list_head *list;
+    list = chain->head.next;
     down_write(&chain->rw_sem);
     
-    list_for_each_entry(rule, &chain->head, list)
+    for(i = 1; i < num; i++)
     {
-        i++;
-        if(i == num)
-        {
-            list_del(&rule->list);
-            kfree(rule);
-        }
+        list = list->next;
     }
+
+    list_del(list);
+
+    rule = container_of(list, struct LSP_filter_rule, list);
+    kfree(rule);
 
     up_write(&chain->rw_sem);
 }
@@ -212,7 +213,7 @@ static int del_rule(struct sk_buff *skb, struct genl_info *info)
     num = *(unsigned int *)NLA_DATA(nla);
 
     printk(KERN_ALERT "[LSP] del the rule %d\n", num);
-    //del_rule_chain(num, &filter_rule_chain);
+    del_rule_chain(num, &filter_rule_chain);
 
     return 0;
 }

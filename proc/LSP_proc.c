@@ -19,7 +19,7 @@ void * LSP_start(struct seq_file *m, loff_t *ops)
         return NULL;
     seq = 1;
 
-    snprintf(buff, BUFF_LEN, "seq    flag    re    start    end    dport    protocol\n");
+    snprintf(buff, BUFF_LEN, "seq   flag   re        start           end       dport    protocol\n");
     list = filter_rule_chain.head.next;
     return buff;
 }
@@ -35,7 +35,7 @@ void * LSP_next(struct seq_file *m, void *v, loff_t *ops)
     if(list != &filter_rule_chain.head)
     {
         rule = container_of(list, struct LSP_filter_rule, list);
-        snprintf(buff, BUFF_LEN, "%d %d %d %pI4 %pI4 %d %d\n", seq, rule->flag, rule->re, &rule->start, &rule->end, \
+        snprintf(buff, BUFF_LEN, " %d\t%d\t%d\t%pI4\t%pI4\t%d\t%d\n", seq, rule->flag, rule->re, &rule->start, &rule->end, \
                     rule->dport, rule->protocol);
         seq++;
         list = list->next;
