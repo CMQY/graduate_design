@@ -104,9 +104,11 @@ static int add_rule(struct sk_buff *skb, struct genl_info *info)
             end = *(__be32 *)NLA_DATA(nla);
             break;
 
-        case LSP_FLTPLC_DPORT:
+        case LSP_FLTPLC_DPORT_AND_PROTO:
             nla = NLA_NEXT(nla);
             dport = *(__be16 *)NLA_DATA(nla);
+            nla = NLA_NEXT(nla);
+            protocol = *(__u8 *)NLA_DATA(nla);
             break;
 
         case LSP_FLTPLC_PROTO:
@@ -114,20 +116,24 @@ static int add_rule(struct sk_buff *skb, struct genl_info *info)
             protocol = *(__u8 *)NLA_DATA(nla);
             break;
 
-        case LSP_FLTPLC_S_ADDR_AND_DPORT_S:
+        case LSP_FLTPLC_S_ADDR_AND_DPORT_AND_PROTO_S:
             nla = NLA_NEXT(nla);
             start = *(__be32 *)NLA_DATA(nla);
             nla = NLA_NEXT(nla);
             dport = *(__u8 *)NLA_DATA(nla);
+            nla = NLA_NEXT(nla);
+            protocol = *(__u8 *)NLA_DATA(nla);
             break;
 
-        case LSP_FLTPLC_S_ADDR_AND_DPORT_M:
+        case LSP_FLTPLC_S_ADDR_AND_DPORT_AND_PROTO_M:
             nla = NLA_NEXT(nla);
             start = *(__be32 *)NLA_DATA(nla);
             nla = NLA_NEXT(nla);
             end = *(__be32 *)NLA_DATA(nla);
             nla = NLA_NEXT(nla);
             dport = *(__u8 *)NLA_DATA(nla);
+            nla = NLA_NEXT(nla);
+            protocol = *(__u8 *)NLA_DATA(nla);
             break;
 
         case LSP_FLTPLC_S_ADDR_AND_PROTO_S:
@@ -146,20 +152,24 @@ static int add_rule(struct sk_buff *skb, struct genl_info *info)
             protocol = *(__u8 *)NLA_DATA(nla);
             break;
   
-        case LSP_FLTPLC_D_ADDR_AND_DPORT_S:
+        case LSP_FLTPLC_D_ADDR_AND_DPORT_AND_PROTO_S:
             nla = NLA_NEXT(nla);
             start = *(__be32 *)NLA_DATA(nla);
             nla = NLA_NEXT(nla);
             dport = *(__u8 *)NLA_DATA(nla);
+            nla = NLA_NEXT(nla);
+            protocol = *(__u8 *)NLA_DATA(nla);
             break;
 
-        case LSP_FLTPLC_D_ADDR_AND_DPORT_M:
+        case LSP_FLTPLC_D_ADDR_AND_DPORT_AND_PROTO_M:
             nla = NLA_NEXT(nla);
             start = *(__be32 *)NLA_DATA(nla);
             nla = NLA_NEXT(nla);
             end = *(__be32 *)NLA_DATA(nla);
             nla = NLA_NEXT(nla);
             dport = *(__u8 *)NLA_DATA(nla);
+            nla = NLA_NEXT(nla);
+            protocol = *(__u8 *)NLA_DATA(nla);
             break;
 
         case LSP_FLTPLC_D_ADDR_AND_PROTO_S:

@@ -81,9 +81,10 @@ unsigned int LSP_filterIn(struct sk_buff *skb, const struct net_device *in, cons
                 re = rule->re;
             break;
     
-        case LSP_FLTPLC_DPORT:
-            if(dport == rule->dport)
-                re = rule->re;
+        case LSP_FLTPLC_DPORT_AND_PROTO:
+            if(protocol == rule->protocol)
+                if(dport == rule->dport)
+                    re = rule->re;
             break;
     
         case LSP_FLTPLC_PROTO:
@@ -91,16 +92,18 @@ unsigned int LSP_filterIn(struct sk_buff *skb, const struct net_device *in, cons
                 re = rule->re;
             break;
     
-        case LSP_FLTPLC_S_ADDR_AND_DPORT_S:
+        case LSP_FLTPLC_S_ADDR_AND_DPORT_AND_PROTO_S:
             if(saddr == rule->start)
-                if(dport == rule->dport)
-                    re = rule->re;
+                if(protocol == rule->protocol)
+                    if(dport == rule->dport)
+                        re = rule->re;
             break;
     
-        case LSP_FLTPLC_S_ADDR_AND_DPORT_M:
+        case LSP_FLTPLC_S_ADDR_AND_DPORT_AND_PROTO_M:
             if(saddr >= rule->start && saddr <= rule->end)
-                if(dport == rule->dport)
-                    re = rule->re;
+                if(protocol == rule->protocol)
+                    if(dport == rule->dport)
+                        re = rule->re;
             break;
     
         case LSP_FLTPLC_S_ADDR_AND_PROTO_S:
@@ -115,16 +118,18 @@ unsigned int LSP_filterIn(struct sk_buff *skb, const struct net_device *in, cons
                     re = rule->re;
             break;
     
-        case LSP_FLTPLC_D_ADDR_AND_DPORT_S:
+        case LSP_FLTPLC_D_ADDR_AND_DPORT_AND_PROTO_S:
             if(daddr == rule->start)
-                if(dport == rule->dport)
-                    re = rule->re;
+                if(protocol == rule->protocol)
+                    if(dport == rule->dport)
+                        re = rule->re;
             break;
     
-        case LSP_FLTPLC_D_ADDR_AND_DPORT_M:
+        case LSP_FLTPLC_D_ADDR_AND_DPORT_AND_PROTO_M:
             if(daddr >= rule->start && daddr <= rule->end)
-                if(dport == rule->dport)
-                    re = rule->re;
+                if(protocol == rule->protocol)
+                    if(dport == rule->dport)
+                        re = rule->re;
             break;
     
         case LSP_FLTPLC_D_ADDR_AND_PROTO_S:

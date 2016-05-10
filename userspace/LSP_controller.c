@@ -137,9 +137,11 @@ int main(int argc, char *argv[])
             end_p = &end;
             break;
 
-        case LSP_FLTPLC_DPORT:
+        case LSP_FLTPLC_DPORT_AND_PROTO:
             dport = ntohs((__u16)atoi(argv[3]));
             dport_p = &dport;
+            protocol = (__u8)atoi(argv[4]);
+            protocol_p = &protocol;
             break;
 
         case LSP_FLTPLC_PROTO:
@@ -147,17 +149,21 @@ int main(int argc, char *argv[])
             protocol_p = &protocol;
             break;
 
-        case LSP_FLTPLC_S_ADDR_AND_DPORT_S:
+        case LSP_FLTPLC_S_ADDR_AND_DPORT_AND_PROTO_S:
             start = ntohl(inet_addr(argv[3]));
             dport = ntohs((__u16)atoi(argv[4]));
+            protocol = (__u8)atoi(argv[5]);
+            protocol_p = &protocol;
             start_p = &start;
             dport_p = &dport;
             break;
 
-        case LSP_FLTPLC_S_ADDR_AND_DPORT_M:
+        case LSP_FLTPLC_S_ADDR_AND_DPORT_AND_PROTO_M:
             start = ntohl(inet_addr(argv[3]));
             end = ntohl(inet_addr(argv[4]));
             dport = ntohs((__u16)atoi(argv[5]));
+            protocol = (__u8)atoi(argv[6]);
+            protocol_p = &protocol;
             start_p = &start;
             end_p = &end;
             dport_p = &dport;
@@ -179,17 +185,21 @@ int main(int argc, char *argv[])
             protocol_p = &protocol;
             break;
 
-        case LSP_FLTPLC_D_ADDR_AND_DPORT_S:
+        case LSP_FLTPLC_D_ADDR_AND_DPORT_AND_PROTO_S:
             start = ntohl(inet_addr(argv[3]));
             dport = ntohs((__u16)atoi(argv[4]));
+            protocol = (__u8)atoi(argv[5]);
+            protocol_p = &protocol;
             start_p = &start;
             dport_p = &dport;
             break;
 
-        case LSP_FLTPLC_D_ADDR_AND_DPORT_M:
+        case LSP_FLTPLC_D_ADDR_AND_DPORT_AND_PROTO_M:
             start = ntohl(inet_addr(argv[3]));
             end = ntohl(inet_addr(argv[4]));
             dport = ntohs((__u16)atoi(argv[5]));
+            protocol = (__u8)atoi(argv[6]);
+            protocol_p = &protocol;
             start_p = &start;
             end_p = &end;
             dport_p = &dport;
