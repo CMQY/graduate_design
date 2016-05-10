@@ -16,9 +16,7 @@ endif
 default: 
 	@$(MAKE) -C $(KERNELDIR) M=$(PWD) V=0 modules 
 	gcc ./userspace/LSP_controller.c -o ./userspace/lsp_controller
-	@echo
-	@echo build for $(ACCE_TARGET)
-	@echo
+	@rm -rf  *.mod.c *.mod.o *.o  .syskernel* .tmp* modules.* Module.* *.ko.unsigned .*.cmd ./*/.*.cmd ./*/*.o 
 
 
 clean: 

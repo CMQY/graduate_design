@@ -14,20 +14,12 @@ print_help()
 }
 
 
-
-main()
+add_rule()
 {
-if [ $# -eq 0 ] || [ $1 = "-h" ]
-then
-    print_help
-fi
-
-case $1 in
-"-a")
     shift
     if [ $# -eq 0 ]
     then 
-        print_help
+        print_help "0 argument"
     fi
     while [ $# -ne 0 ]
     do
@@ -71,7 +63,7 @@ case $1 in
                 if [ -z "$protocol" ] ; then
                     print_help "too few argument"
                 fi
-                do_it $S_ADDR_AND_PORT_AND_PROTO_S $action $saddr $dport $protocol
+                do_it $S_ADDR_AND_DPORT_AND_PROTO_S $action $saddr $dport $protocol
             else
                 if [ -n "$protocol" ] ; then
                     #echo "S_ADDR_AND_PROTO_S"
@@ -87,9 +79,9 @@ case $1 in
                 if [ -z "$protocol" ] ; then
                     print_help "too few argument"
                 fi
-                #echo "S_ADDR_AND_PORT_AND_PROTO_M"
+                echo "$S_ADDR_AND_DPORT_AND_PROTO_M"
                 lsp_parse_dash $saddr
-                do_it $S_ADDR_AND_PORT_AND_PROTO_M $action $lsp_start $lsp_end $dport $protocol
+                do_it $S_ADDR_AND_DPORT_AND_PROTO_M $action $lsp_start $lsp_end $dport $protocol
             else
                 if [ -n "$protocol" ] ; then
                     #echo "S_ADDR_AND_PROTO_M"
@@ -114,8 +106,8 @@ case $1 in
                 if [ -z "$protocol" ] ; then
                     print_help "too few argument"
                 fi
-                #echo "D_ADDR_AND_PORT_AND_PROTO_S"
-                do_it $D_ADDR_AND_PORT_AND_PROTO_S $action $daddr $dport $protocol
+                #echo "D_ADDR_AND_DPORT_AND_PROTO_S"
+                do_it $D_ADDR_AND_DPORT_AND_PROTO_S $action $daddr $dport $protocol
             else
                 if [ -n "$protocol" ] ; then
                     #echo "D_ADDR_AND_PROTO_S"
@@ -131,9 +123,9 @@ case $1 in
                 if [ -z "$protocol" ] ; then
                     print_help "too few argument"
                 fi
-                #echo "D_ADDR_AND_PORT_AND_PROTO_M"
+                #echo "D_ADDR_AND_DPORT_AND_PROTO_M"
                 lsp_parse_dash $daddr
-                do_it $D_ADDR_AND_PORT_AND_PROTO_M $action $lsp_start $lsp_end $dport $protocol
+                do_it $D_ADDR_AND_DPORT_AND_PROTO_M $action $lsp_start $lsp_end $dport $protocol
             else
                 if [ -n "$protocol" ] ; then
                     #echo "D_ADDR_AND_PROTO_M"
@@ -167,18 +159,46 @@ case $1 in
     fi
     exit 0
     echo "$saddr $daddr $dport $protocol $action"
+}
+
+del_rule()
+{
+    do_it $LSP_RULE_DEL $1
+}
+
+clean_rule()
+{
+    do_it $LSP_RULE_DEL_ALL
+}
+
+list_rule()
+{
+    cat /proc/lsp_firewall/rule
+}
+
+
+main()
+{
+if [ $# -eq 0 ] || [ $1 = "-h" ]
+then
+    print_help "out side argument"
+fi
+
+case $1 in
+"-a")
+    add_rule $@
 ;;
 
 "-l")
-    ;;
-
-"-l")
+    list_rule
     ;;
 
 "-d")
+    del_rule $2
     ;;
 
 "-c")
+    clean_rule
     ;;
 
 "enable")
