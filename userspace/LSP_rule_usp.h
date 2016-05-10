@@ -3,26 +3,6 @@
 
 #include <linux/types.h>
 
-/**
-#define S_ADDR_SING 1
-#define S_ADDR_MULT 2
-#define D_ADDR_SING 4
-#define D_ADDR_MULT 8
-#define S_PORT  16
-#define D_PORT 32
-#define PROTO   64
-#define CROSS   128
-
-#define IS_SADDR_SING(flag) (((flag) & S_ADDR_SING))
-#define IS_DADDR_SING(flag) (((flag) & D_ADDR_SING))
-#define IS_SADDR_MULT(flag) (((flag) & S_ADDR_MULT))
-#define IS_DADDR_MULT(flag) (((flag) & D_ADDR_MULT))
-#define IS_SPORT(flag) (((flag) & S_PORT))
-#define IS_DPORT(flag) (((flag) & D_PORT))
-#define IS_PROTO(flag) (((flag) & PROTO))
-#define IS_CROSS(flag) (((flag) & CROSS))
-*
-*/
 
 
 /**

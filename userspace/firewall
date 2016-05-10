@@ -1,0 +1,195 @@
+#! /bin/sh
+. ./LSP_utils.sh
+. ./firewall.h
+
+do_it()
+{
+    ./lsp_controller $@
+}
+
+print_help()
+{
+    echo "something wrong in $1"
+    exit
+}
+
+
+
+main()
+{
+if [ $# -eq 0 ] || [ $1 = "-h" ]
+then
+    print_help
+fi
+
+case $1 in
+"-a")
+    shift
+    if [ $# -eq 0 ]
+    then 
+        print_help
+    fi
+    while [ $# -ne 0 ]
+    do
+        lsp_parse_argment $1
+        case $LSP_cmd in
+        "--saddr")
+            saddr=$LSP_val
+            ;;
+        "--daddr")
+            daddr=$LSP_val
+            ;;
+        "--dport")
+            dport=$LSP_val
+            ;;
+        "--protocol")
+            protocol=$LSP_val
+            ;;
+        "--action")
+            action=$LSP_val
+            ;;
+        *)
+            print_help command
+            ;;
+        esac
+        shift
+    done
+    
+    if [ -n "$saddr" -a -n "$daddr" ] ; then
+        print_help "saddr and daddr"
+    fi
+    
+    if [ -z "$action" ] ; then
+        print_help "must specific action"
+    fi
+    
+    if [ -n "$saddr" ] ; then
+        _isRange=`expr index "$saddr" -`
+        if [ $_isRange -eq 0 ] ; then
+            echo "saddr is not range"
+            if [ -n "$dport" ] ; then
+                if [ -z "$protocol" ] ; then
+                    print_help "too few argument"
+                fi
+                do_it $S_ADDR_AND_PORT_AND_PROTO_S $action $saddr $dport $protocol
+            else
+                if [ -n "$protocol" ] ; then
+                    #echo "S_ADDR_AND_PROTO_S"
+                    do_it $S_ADDR_AND_PROTO_S $action $saddr $protocol
+                else
+                    #echo "S_ADDR_S"
+                    do_it $S_ADDR_S $action $saddr
+                fi
+            fi
+        else
+            echo "saddr is range"
+            if [ -n "$dport" ] ; then
+                if [ -z "$protocol" ] ; then
+                    print_help "too few argument"
+                fi
+                #echo "S_ADDR_AND_PORT_AND_PROTO_M"
+                lsp_parse_dash $saddr
+                do_it $S_ADDR_AND_PORT_AND_PROTO_M $action $lsp_start $lsp_end $dport $protocol
+            else
+                if [ -n "$protocol" ] ; then
+                    #echo "S_ADDR_AND_PROTO_M"
+                    lsp_parse_dash $saddr
+                    do_it $S_ADDR_AND_PROTO_M $action $lsp_start $lsp_end $protocol
+                else
+                    #echo "S_ADDR_M"
+                    lsp_parse_dash $saddr
+                    do_it $S_ADDR_M $action $lsp_start $lsp_end
+                fi
+            fi
+            
+        fi
+        exit 0
+    fi
+
+    if [ -n "$daddr" ] ; then
+        _isRange=`expr index "$daddr" -`
+        if [ $_isRange -eq 0 ] ; then
+            echo "daddr is not range"
+            if [ -n "$dport" ] ; then
+                if [ -z "$protocol" ] ; then
+                    print_help "too few argument"
+                fi
+                #echo "D_ADDR_AND_PORT_AND_PROTO_S"
+                do_it $D_ADDR_AND_PORT_AND_PROTO_S $action $daddr $dport $protocol
+            else
+                if [ -n "$protocol" ] ; then
+                    #echo "D_ADDR_AND_PROTO_S"
+                    do_it $D_ADDR_AND_PROTO_S $action $daddr $protocol
+                else
+                    #echo "D_ADDR_S"
+                    do_it $D_ADDR_S $action $daddr
+                fi
+            fi
+        else
+            echo "daddr is range"
+            if [ -n "$dport" ] ; then
+                if [ -z "$protocol" ] ; then
+                    print_help "too few argument"
+                fi
+                #echo "D_ADDR_AND_PORT_AND_PROTO_M"
+                lsp_parse_dash $daddr
+                do_it $D_ADDR_AND_PORT_AND_PROTO_M $action $lsp_start $lsp_end $dport $protocol
+            else
+                if [ -n "$protocol" ] ; then
+                    #echo "D_ADDR_AND_PROTO_M"
+                    lsp_parse_dash $daddr
+                    do_it $D_ADDR_AND_PROTO_M $action $lsp_start $lsp_end $protocol
+                else
+                    #echo "D_ADDR_M"
+                    lsp_parse_dash $daddr
+                    do_it $D_ADDR_M $action $lsp_start $lsp_end
+                fi
+            fi
+            
+        fi
+        exit 0
+    fi
+
+
+    if [ -n "$dport" ] ; then
+        if [ -z "$protocol" ] ; then
+            print_help "too few argument"
+        fi
+        #echo "DPORT_AND_PROTO"
+        do_it $DPORT_AND_PROTO $action $dport $protocol
+    else
+        if [ -n "$protocol" ] ; then
+            #echo "PROTO"
+            do_it $PROTO $action $protocol
+        else
+            print_help "too few argument"
+        fi
+    fi
+    exit 0
+    echo "$saddr $daddr $dport $protocol $action"
+;;
+
+"-l")
+    ;;
+
+"-l")
+    ;;
+
+"-d")
+    ;;
+
+"-c")
+    ;;
+
+"enable")
+    ;;
+
+"disable")
+    ;;
+
+*)
+    ;;
+esac
+}
+
+main $@

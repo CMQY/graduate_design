@@ -15,12 +15,12 @@ endif
 
 default: 
 	@$(MAKE) -C $(KERNELDIR) M=$(PWD) V=0 modules 
-	gcc ./userspace/LSP_controller.c
+	gcc ./userspace/LSP_controller.c -o ./userspace/lsp_controller
 	@echo
 	@echo build for $(ACCE_TARGET)
 	@echo
 
 
 clean: 
-	@rm -rf  *.ko *.mod.c *.mod.o *.o  .syskernel* .tmp* modules.* Module.* *.ko.unsigned .*.cmd ./*/.*.cmd ./*/*.o *.out
+	@rm -rf  *.ko *.mod.c *.mod.o *.o  .syskernel* .tmp* modules.* Module.* *.ko.unsigned .*.cmd ./*/.*.cmd ./*/*.o ./userspace/lsp_controller
 	
