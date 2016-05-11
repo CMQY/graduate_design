@@ -115,30 +115,38 @@ int main(int argc, char *argv[])
 
         case LSP_FLTPLC_S_ADDR_S:
             start = ntohl(inet_addr(argv[3]));
+            //start = inet_addr(argv[3]);
             start_p = &start;
             break;
 
         case LSP_FLTPLC_S_ADDR_M:
             start = ntohl(inet_addr(argv[3]));
+            //start = inet_addr(argv[3]);
             start_p = &start;
             end = ntohl(inet_addr(argv[4]));
+            //end = inet_addr(argv[4]);
             end_p = &end;
+            printf("%s %s\n", argv[3], argv[4]);
             break;
 
         case LSP_FLTPLC_D_ADDR_S:
             start = ntohl(inet_addr(argv[3]));
+            //start = inet_addr(argv[3]);
             start_p = &start;
             break;
 
         case LSP_FLTPLC_D_ADDR_M:
             start = ntohl(inet_addr(argv[3]));
+            //start = inet_addr(argv[3]);
             start_p = &start;
             end = ntohl(inet_addr(argv[4]));
+            //end = inet_addr(argv[4]);
             end_p = &end;
             break;
 
         case LSP_FLTPLC_DPORT_AND_PROTO:
-            dport = ntohs((__u16)atoi(argv[3]));
+            //dport = htons((__be16)atoi(argv[3]));
+            dport = (__be16)atoi(argv[3]);
             dport_p = &dport;
             protocol = (__u8)atoi(argv[4]);
             protocol_p = &protocol;
@@ -151,7 +159,9 @@ int main(int argc, char *argv[])
 
         case LSP_FLTPLC_S_ADDR_AND_DPORT_AND_PROTO_S:
             start = ntohl(inet_addr(argv[3]));
-            dport = ntohs((__u16)atoi(argv[4]));
+            //start = inet_addr(argv[3]);
+            //dport = htons((__be16)atoi(argv[4]));
+            dport = (__be16)atoi(argv[4]);
             protocol = (__u8)atoi(argv[5]);
             protocol_p = &protocol;
             start_p = &start;
@@ -160,8 +170,11 @@ int main(int argc, char *argv[])
 
         case LSP_FLTPLC_S_ADDR_AND_DPORT_AND_PROTO_M:
             start = ntohl(inet_addr(argv[3]));
+            //start = inet_addr(argv[3]);
             end = ntohl(inet_addr(argv[4]));
-            dport = ntohs((__u16)atoi(argv[5]));
+            //end = inet_addr(argv[4]);
+            //dport = htons((__be16)atoi(argv[5]));
+            dport = (__be16)atoi(argv[5]);
             protocol = (__u8)atoi(argv[6]);
             protocol_p = &protocol;
             start_p = &start;
@@ -171,15 +184,18 @@ int main(int argc, char *argv[])
 
         case LSP_FLTPLC_S_ADDR_AND_PROTO_S:
             start = ntohl(inet_addr(argv[3]));
-            protocol = (__u16)atoi(argv[4]);
+            //start = inet_addr(argv[3]);
+            protocol = (__u8)atoi(argv[4]);
             start_p = &start;
             protocol_p = &protocol;
             break;
 
         case LSP_FLTPLC_S_ADDR_AND_PROTO_M:
             start = ntohl(inet_addr(argv[3]));
+            //start = inet_addr(argv[3]);
             end = ntohl(inet_addr(argv[4]));
-            protocol = (__u16)atoi(argv[5]);
+            //end = inet_addr(argv[4]);
+            protocol = (__u8)atoi(argv[5]);
             start_p = &start;
             end_p = &end;
             protocol_p = &protocol;
@@ -187,7 +203,9 @@ int main(int argc, char *argv[])
 
         case LSP_FLTPLC_D_ADDR_AND_DPORT_AND_PROTO_S:
             start = ntohl(inet_addr(argv[3]));
-            dport = ntohs((__u16)atoi(argv[4]));
+            //start = inet_addr(argv[3]);
+            //dport = htons((__be16)atoi(argv[4]));
+            dport = (__be16)atoi(argv[4]);
             protocol = (__u8)atoi(argv[5]);
             protocol_p = &protocol;
             start_p = &start;
@@ -196,8 +214,11 @@ int main(int argc, char *argv[])
 
         case LSP_FLTPLC_D_ADDR_AND_DPORT_AND_PROTO_M:
             start = ntohl(inet_addr(argv[3]));
+            //start = inet_addr(argv[3]);
             end = ntohl(inet_addr(argv[4]));
-            dport = ntohs((__u16)atoi(argv[5]));
+            //end = inet_addr(argv[4]);
+            //dport = htons((__be16)atoi(argv[5]));
+            dport = (__be16)atoi(argv[5]);
             protocol = (__u8)atoi(argv[6]);
             protocol_p = &protocol;
             start_p = &start;
@@ -207,15 +228,18 @@ int main(int argc, char *argv[])
 
         case LSP_FLTPLC_D_ADDR_AND_PROTO_S:
             start = ntohl(inet_addr(argv[3]));
-            protocol = (__u16)atoi(argv[4]);
+            //start = inet_addr(argv[3]);
+            protocol = (__u8)atoi(argv[4]);
             start_p = &start;
             protocol_p = &protocol;
             break;
 
         case LSP_FLTPLC_D_ADDR_AND_PROTO_M:
             start = ntohl(inet_addr(argv[3]));
+            //start = inet_addr(argv[3]);
             end = ntohl(inet_addr(argv[4]));
-            protocol = (__u16)atoi(argv[5]);
+            //end = inet_addr(argv[4]);
+            protocol = (__u8)atoi(argv[5]);
             start_p = &start;
             end_p = &end;
             protocol_p = &protocol;
@@ -227,6 +251,8 @@ int main(int argc, char *argv[])
             break;
     }
 
+    
+//    printf("[LSP] %d %d %s %s %d %d %d\n", re, flag, inet_ntoa(&start), inet_ntoa(&end), sport, dport, protocol);
     if( (ret = mk_rule(buff, BUFF_LEN, flag, start_p, end_p, sport_p, dport_p, protocol_p, re)) < 0)
     {
         printf("make rule error \n");

@@ -24,7 +24,7 @@ extern void LSP_proc_exit(void);
 
 struct rule_chain filter_rule_chain;
 
-    
+int lsp_switch = 0;       /*  switch that if the firewall is on  */
 
 unsigned int LSP_filterIn(struct sk_buff *skb, const struct net_device *in, const struct net_device *out)
 {
@@ -50,15 +50,11 @@ unsigned int LSP_filterIn(struct sk_buff *skb, const struct net_device *in, cons
     l4hdr = (void *)tcp_hdr(skb);
     sport = ntohs(((struct tcphdr *)l4hdr)->source);
     dport = ntohs(((struct tcphdr *)l4hdr)->dest);
-/*    
-    printk(KERN_ALERT "[LSP] the packet: start:%pI4 end:%pI4 endport:%d \n", &saddr, &daddr, dport);
+    
 
     down_read(&filter_rule_chain.rw_sem);
     list_for_each_entry(rule,&(filter_rule_chain.head),list)
     {
-        printk(KERN_ALERT "[LSP] the rule: start:%pI4 end:%pI4 endport:%d protocol:%d re:%d \n",   \
-                &rule->start, &rule->end, rule->dport, rule->protocol, rule->re);
-        
         switch(rule->flag)
         {
         case LSP_FLTPLC_S_ADDR_S:
@@ -149,18 +145,25 @@ unsigned int LSP_filterIn(struct sk_buff *skb, const struct net_device *in, cons
         }
     }
     up_read(&filter_rule_chain.rw_sem);
-*/
-    return FILTER_DEF_RE;
+    if(re == NF_DROP)
+    {
+        printk(KERN_ALERT "[LSP] saddr:%pI4 daddr:%pI4 dport:%d droped",&saddr, &daddr, dport);
+    }
+    return re;
 }
 
 static unsigned int nf_pre_routing_fn(unsigned int hooknum, struct sk_buff *skb, const struct net_device *in, const struct net_device *out, int (*okfn)(struct sk_buff *))
 {
+    if(lsp_switch == 0)
+        return NF_ACCEPT;
 //    LSP_natPrerouting();
 	return NF_ACCEPT;
 }
 
 static unsigned int nf_post_routing_fn(unsigned int hooknum, struct sk_buff *skb, const struct net_device *in, const struct net_device *out, int (*okfn)(struct sk_buff *))
 {	
+    if(lsp_switch == 0)
+        return NF_ACCEPT;
 //    LSP_natPostrouting();
 	return NF_ACCEPT;
 }
@@ -168,8 +171,9 @@ static unsigned int nf_post_routing_fn(unsigned int hooknum, struct sk_buff *skb
 static unsigned int nf_local_in_fn(unsigned int hooknum, struct sk_buff *skb, const struct net_device *in, const struct net_device *out, int (*okfn)(struct sk_buff *))
 {	
     unsigned int re;
-    struct iphdr *iph;
-    iph=ip_hdr(skb);
+    if(lsp_switch == 0)
+        return NF_ACCEPT;
+
     re = FILTER_DEF_RE;
     re = LSP_filterIn(skb, in, out);
 	return re;
@@ -177,6 +181,8 @@ static unsigned int nf_local_in_fn(unsigned int hooknum, struct sk_buff *skb, co
 
 static unsigned int nf_local_out_fn(unsigned int hooknum, struct sk_buff *skb, const struct net_device *in, const struct net_device *out, int (*okfn)(struct sk_buff *))
 {	
+    if(lsp_switch == 0)
+        return NF_ACCEPT;
 //    LSP_natOut();
 //    LSP_filterOut();
 	return NF_ACCEPT;
@@ -184,6 +190,8 @@ static unsigned int nf_local_out_fn(unsigned int hooknum, struct sk_buff *skb, c
 
 static unsigned int nf_forward_fn(unsigned int hooknum, struct sk_buff *skb, const struct net_device *in, const struct net_device *out, int (*okfn)(struct sk_buff *))
 {	
+    if(lsp_switch == 0)
+        return NF_ACCEPT;
 //    LSP_filterForward();
     return NF_ACCEPT;
 }
@@ -192,7 +200,8 @@ static unsigned int nf_forward_fn(unsigned int hooknum, struct sk_buff *skb, con
 
 static struct nf_hook_ops hops[] = {
 {
-	.hook=nf_pre_routing_fn,
+	//.hook=nf_pre_routing_fn,
+	.hook=nf_local_in_fn,
 	.owner=THIS_MODULE,
 	.pf=NFPROTO_IPV4,	//uapi/linux/netfilter.h
 	.hooknum=NF_INET_PRE_ROUTING,		//uapi/linux/netfilter_ipv4.h
@@ -200,7 +209,8 @@ static struct nf_hook_ops hops[] = {
 },
 
 {
-	.hook=nf_post_routing_fn,
+	.hook=nf_local_in_fn,
+//.hook=nf_post_routing_fn,
 	.owner=THIS_MODULE,
 	.pf=NFPROTO_IPV4,
 	.hooknum=NF_INET_POST_ROUTING,		
@@ -216,7 +226,8 @@ static struct nf_hook_ops hops[] = {
 },
 	
 {
-	.hook=nf_local_out_fn,
+	//.hook=nf_local_out_fn,
+	.hook=nf_local_in_fn,
 	.owner=THIS_MODULE,
 	.pf=NFPROTO_IPV4,
 	.hooknum=NF_INET_LOCAL_OUT,		
@@ -224,7 +235,8 @@ static struct nf_hook_ops hops[] = {
 },
 	
 {
-	.hook=nf_forward_fn,
+	//.hook=nf_forward_fn,
+	.hook=nf_local_in_fn,
 	.owner=THIS_MODULE,
 	.pf=NFPROTO_IPV4,
 	.hooknum=NF_INET_FORWARD,		

@@ -77,7 +77,7 @@ int mk_rule(char *buff, int buff_len, __u8 flag, __be32 *start, __be32 *end, __b
             return -1;
         }
         nla = NLA_NEXT(nla);
-        if(set_attr(nla, buff_need, LSP_ATTR_32, buff_need, start, sizeof(__be32)) < 0)
+        if(set_attr(nla, buff_need, LSP_ATTR_32, buff_need, end, sizeof(__be32)) < 0)
         {
             printf("set attr error error! \n");
             return -1;

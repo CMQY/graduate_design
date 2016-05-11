@@ -9,7 +9,22 @@ do_it()
 
 print_help()
 {
-    echo "something wrong in $1"
+    echo $1
+    echo "firewall   -l  list rules"
+    echo "           -a  add a rule"
+    echo "           -d  del a specific rule"
+    echo "           -c  delete all rule"
+    echo "           -h  print this help"
+    echo
+    echo "           enable  start the firewall"
+    echo "           disable   shut down the firewall"
+    echo "           "
+    echo "rule principle:"
+    echo "          --saddr=    specific the source addr"
+    echo "          --daddr=    specific the destination addr"
+    echo "          --dport=    specific the destination port"
+    echo "          --action=   specific the action when packages match the rule"
+    echo "          --protocol= specific the protocol"
     exit
 }
 
@@ -38,7 +53,29 @@ add_rule()
             protocol=$LSP_val
             ;;
         "--action")
-            action=$LSP_val
+            case $LSP_val in
+            "accept")
+                action=$NF_ACCEPT
+                ;;
+            "drop")
+                action=$NF_DROP
+                ;;
+            "stolen")
+                action=$NF_STOLEN
+                ;;
+            "queue")
+                action=$NF_QUEUE
+                ;;
+            "repeat")
+                action=$NF_REPEAT
+                ;;
+            "stop")
+                action=$NF_STOP
+                ;;
+            *)
+                print_help "unknown action option"
+                ;;
+            esac
             ;;
         *)
             print_help command
@@ -81,6 +118,7 @@ add_rule()
                 fi
                 echo "$S_ADDR_AND_DPORT_AND_PROTO_M"
                 lsp_parse_dash $saddr
+                echo $S_ADDR_AND_DPORT_AND_PROTO_M $action $lsp_start $lsp_end $dport $protocol
                 do_it $S_ADDR_AND_DPORT_AND_PROTO_M $action $lsp_start $lsp_end $dport $protocol
             else
                 if [ -n "$protocol" ] ; then
@@ -158,7 +196,6 @@ add_rule()
         fi
     fi
     exit 0
-    echo "$saddr $daddr $dport $protocol $action"
 }
 
 del_rule()
@@ -181,7 +218,7 @@ main()
 {
 if [ $# -eq 0 ] || [ $1 = "-h" ]
 then
-    print_help "out side argument"
+    print_help "need  argument"
 fi
 
 case $1 in
@@ -202,12 +239,15 @@ case $1 in
     ;;
 
 "enable")
+    echo 1 >/proc/lsp_firewall/enable 
     ;;
 
 "disable")
+    echo 0 >/proc/lsp_firewall/enable 
     ;;
 
 *)
+    print_help "wrong option"
     ;;
 esac
 }

@@ -120,7 +120,7 @@ static int add_rule(struct sk_buff *skb, struct genl_info *info)
             nla = NLA_NEXT(nla);
             start = *(__be32 *)NLA_DATA(nla);
             nla = NLA_NEXT(nla);
-            dport = *(__u8 *)NLA_DATA(nla);
+            dport = *(__be16 *)NLA_DATA(nla);
             nla = NLA_NEXT(nla);
             protocol = *(__u8 *)NLA_DATA(nla);
             break;
@@ -131,7 +131,7 @@ static int add_rule(struct sk_buff *skb, struct genl_info *info)
             nla = NLA_NEXT(nla);
             end = *(__be32 *)NLA_DATA(nla);
             nla = NLA_NEXT(nla);
-            dport = *(__u8 *)NLA_DATA(nla);
+            dport = *(__be16 *)NLA_DATA(nla);
             nla = NLA_NEXT(nla);
             protocol = *(__u8 *)NLA_DATA(nla);
             break;
@@ -156,7 +156,7 @@ static int add_rule(struct sk_buff *skb, struct genl_info *info)
             nla = NLA_NEXT(nla);
             start = *(__be32 *)NLA_DATA(nla);
             nla = NLA_NEXT(nla);
-            dport = *(__u8 *)NLA_DATA(nla);
+            dport = *(__be16 *)NLA_DATA(nla);
             nla = NLA_NEXT(nla);
             protocol = *(__u8 *)NLA_DATA(nla);
             break;
@@ -167,7 +167,7 @@ static int add_rule(struct sk_buff *skb, struct genl_info *info)
             nla = NLA_NEXT(nla);
             end = *(__be32 *)NLA_DATA(nla);
             nla = NLA_NEXT(nla);
-            dport = *(__u8 *)NLA_DATA(nla);
+            dport = *(__be16 *)NLA_DATA(nla);
             nla = NLA_NEXT(nla);
             protocol = *(__u8 *)NLA_DATA(nla);
             break;
@@ -284,6 +284,7 @@ int LSP_netlink_init(void)
 
 void LSP_netlink_exit(void)
 {
+    del_rule_chain_all(&filter_rule_chain);
     genl_unregister_family(&LSP_genl_family);
 }
 

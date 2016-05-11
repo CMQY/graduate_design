@@ -23,3 +23,13 @@ D_ADDR_AND_PROTO_M=14
 
 LSP_RULE_DEL=30
 LSP_RULE_DEL_ALL=31
+
+#/*************************************
+# * responses from hook functions
+# ************************************/
+NF_DROP=0
+NF_ACCEPT=1
+NF_STOLEN=2
+NF_QUEUE=3
+NF_REPEAT=4
+NF_STOP=5
