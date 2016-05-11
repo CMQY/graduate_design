@@ -10,6 +10,7 @@ do_it()
 print_help()
 {
     echo $1
+    echo "usage:"
     echo "firewall   -l  list rules"
     echo "           -a  add a rule"
     echo "           -d  del a specific rule"
